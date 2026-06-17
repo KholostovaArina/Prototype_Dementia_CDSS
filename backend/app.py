@@ -1,4 +1,5 @@
 import json
+import math
 from pathlib import Path
 
 from flask import Flask, jsonify, request, send_file, send_from_directory
@@ -7,38 +8,19 @@ from dotenv import load_dotenv
 
 from cognitive_inference import run_prediction
 
-load_dotenv(Path(__file__).resolve().parent / ".env")
+load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 
 app = Flask(__name__)
 CORS(app)
 
 BACKEND_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BACKEND_DIR.parent / "frontend"
-ARTIFACT_DIR = BACKEND_DIR.parent / "ml" / "model_artifacts"
-
-
-def two_streams_payload():
-    stream1_path = ARTIFACT_DIR / "stream1_patterns.json"
-    stream2_path = ARTIFACT_DIR / "landmark_cohort_summary.json"
-
-    def _load(path: Path, alt: Path | None = None):
-        if path.is_file():
-            return json.loads(path.read_text(encoding="utf-8"))
-        if alt and alt.is_file():
-            return json.loads(alt.read_text(encoding="utf-8"))
-        return None
-
-    return {
-        "stream1": _load(stream1_path),
-        "stream2_cohort": _load(
-            stream2_path,
-            ARTIFACT_DIR / "landmark_cohort_summary_healthy_strict.json",
-        ),
-    }
 
 
 try:
     from form_persistence import (
+        format_db_error,
+        is_db_configured,
         save_from_payload,
         save_patient,
         save_test_results,
@@ -51,6 +33,7 @@ try:
         search_patients,
     )
 except Exception:
+    format_db_error = is_db_configured = None  # type: ignore
     save_from_payload = save_patient = save_visit = save_test_results = None  # type: ignore
     update_visit_notes = None  # type: ignore
     load_patient_context = load_patient_context_by_id = search_patients = None  # type: ignore
@@ -75,6 +58,23 @@ def _parse_predict_request():
         return payload, files
     return request.get_json(force=True, silent=False) or {}, {}
 
+
+def _json_safe(value):
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, float):
+        if math.isnan(value) or math.isinf(value):
+            return None
+        return value
+    if hasattr(value, "item") and callable(value.item):
+        try:
+            return _json_safe(value.item())
+        except (TypeError, ValueError):
+            pass
+    return value
+
 @app.route('/')
 def frontend_index():
     return send_from_directory(FRONTEND_DIR, "index.html")
@@ -87,29 +87,26 @@ def frontend_assets(asset_path):
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "ok", "message": "Backend is running"})
-
-
-@app.route('/api/analytics/two-streams', methods=['GET'])
-def analytics_two_streams():
-    try:
-        payload = two_streams_payload()
-        return jsonify({"success": True, **payload})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+    payload = {"status": "ok", "message": "Backend is running"}
+    if is_db_configured:
+        payload["db_configured"] = is_db_configured()
+    return jsonify(payload)
 
 
 @app.route('/api/patient/search', methods=['GET'])
 def patient_search():
     if search_patients is None:
         return jsonify({"success": False, "error": "БД не настроена."}), 503
+    if is_db_configured and not is_db_configured():
+        return jsonify({"success": False, "error": "БД не настроена (backend/.env)."}), 503
     try:
         q = request.args.get("q", "")
         limit = min(int(request.args.get("limit", 12)), 25)
         items = search_patients(q, limit=limit)
         return jsonify({"success": True, "items": items})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        err = format_db_error(e) if format_db_error else str(e)
+        return jsonify({"success": False, "error": err}), 503
 
 
 @app.route('/api/patient/context', methods=['GET'])
@@ -118,6 +115,8 @@ def patient_context():
         return jsonify(
             {"success": False, "error": "БД не настроена (backend/.env)."}
         ), 503
+    if is_db_configured and not is_db_configured():
+        return jsonify({"success": False, "error": "БД не настроена (backend/.env)."}), 503
     try:
         patient_id = request.args.get("patient_id")
         if patient_id not in (None, ""):
@@ -131,7 +130,8 @@ def patient_context():
         ctx = load_patient_context(fio=fio, ambulatory_card_no=card, age=age)
         return jsonify({"success": True, **ctx})
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        err = format_db_error(e) if format_db_error else str(e)
+        return jsonify({"success": False, "error": err}), 503
 
 @app.route('/api/visit/<int:visit_id>/notes', methods=['PATCH', 'PUT'])
 def visit_notes_update(visit_id: int):
@@ -165,13 +165,19 @@ def predict():
         payload, drawing_files = _parse_predict_request()
         out = run_prediction(payload)
         if save_from_payload:
-            try:
-                out.update(save_from_payload(payload, out))
-                out["db_status"] = "saved" if out.get("saved") else "unknown"
-            except Exception as save_err:
+            if is_db_configured and not is_db_configured():
                 out["saved"] = False
-                out["save_error"] = str(save_err)
-                out["db_status"] = "error"
+                out["save_skipped"] = True
+                out["save_message"] = "БД не настроена — прогноз показан на экране, без сохранения в PostgreSQL."
+                out["db_status"] = "disabled"
+            else:
+                try:
+                    out.update(save_from_payload(payload, out))
+                    out["db_status"] = "saved" if out.get("saved") else "unknown"
+                except Exception as save_err:
+                    out["saved"] = False
+                    out["save_error"] = format_db_error(save_err) if format_db_error else str(save_err)
+                    out["db_status"] = "error"
         else:
             out["saved"] = False
             out["save_error"] = "database.save_from_payload недоступен"
@@ -185,7 +191,7 @@ def predict():
             if errors:
                 out["drawings_errors"] = errors
 
-        return jsonify(out)
+        return jsonify(_json_safe(out))
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

@@ -93,6 +93,8 @@ def aux_domain_contributions(pipe: Any, X: pd.DataFrame) -> List[Dict[str, Any]]
     items = []
     for name, piece in zip(X.columns, contrib):
         mag = float(piece)
+        if not np.isfinite(mag):
+            continue
         items.append({"feature": name, "contribution": mag})
     items.sort(key=lambda z: abs(z["contribution"]), reverse=True)
     return items[:8]

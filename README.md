@@ -4,25 +4,29 @@
 
 ## Запуск
 
+**Нужен Python 3.11 или 3.12.** На Python 3.14 pandas и scikit-learn часто не ставятся (нет готовых сборок под Windows).
+
+Проверка версии:
+
+```powershell
+python --version
+```
+
+Если показывает 3.14+, установите [Python 3.12](https://www.python.org/downloads/) и создайте окружение так:
+
+```powershell
+py -3.12 -m venv .venv
+```
+
 Расчёт риска и интерфейс работают без настройки базы данных.
 
 ```powershell
-python -m venv .venv
 .\.venv\Scripts\pip install -r backend\requirements.txt
 cd backend
 python app.py
 ```
 
 Откройте http://localhost:5000 → заполните форму → «Получить прогноз».
-
-## База данных (опционально)
-
-Для поиска пациентов, сохранения визитов и динамики риска:
-
-1. Выполните `sql/cdss_schema.sql` и `sql/cdss_visit_drawings.sql` в PostgreSQL (Supabase).
-2. Скопируйте `backend/.env.example` → `backend/.env` и укажите параметры подключения.
-
-Без `.env` прототип считает риск, но не сохраняет данные в БД.
 
 ## Структура
 

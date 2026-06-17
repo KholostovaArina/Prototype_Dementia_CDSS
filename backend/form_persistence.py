@@ -5,9 +5,10 @@ import os
 from decimal import Decimal
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values, load_dotenv
 
-load_dotenv(Path(__file__).resolve().parent / ".env")
+_ENV_PATH = Path(__file__).resolve().parent / ".env"
+load_dotenv(_ENV_PATH, override=True)
 from datetime import date
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -241,21 +242,79 @@ def _referral_code(raw: Any) -> Optional[int]:
     return REFERRAL_TEXT_TO_CODE.get(key)
 
 
+def _db_config() -> Dict[str, str]:
+    file_values = dotenv_values(_ENV_PATH) if _ENV_PATH.is_file() else {}
+    keys = ("user", "password", "host", "port", "dbname", "db_schema", "db_sslmode")
+    out: Dict[str, str] = {}
+    for key in keys:
+        raw = file_values.get(key)
+        if raw is None or raw == "":
+            raw = os.getenv(key)
+        out[key] = str(raw or "").strip()
+    return out
+
+
 def get_connection():
-    return psycopg2.connect(
-        user=os.getenv("user"),
-        password=os.getenv("password"),
-        host=os.getenv("host"),
-        port=os.getenv("port"),
-        dbname=os.getenv("dbname"),
-        sslmode=os.getenv("db_sslmode", "require"),
-        connect_timeout=15,
-        keepalives=1,
-        keepalives_idle=30,
-        keepalives_interval=10,
-        keepalives_count=5,
-        options=f"-c search_path={SCHEMA}",
-    )
+    cfg = _db_config()
+    try:
+        return psycopg2.connect(
+            user=cfg["user"],
+            password=cfg["password"],
+            host=cfg["host"],
+            port=cfg["port"] or "5432",
+            dbname=cfg["dbname"],
+            sslmode=cfg["db_sslmode"] or "require",
+            connect_timeout=15,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5,
+            options=f"-c search_path={cfg['db_schema'] or SCHEMA}",
+        )
+    except UnicodeDecodeError as err:
+        raise ConnectionError(
+            "Не удалось подключиться к PostgreSQL. "
+            "На Windows direct connection (порт 5432) часто не работает — "
+            "в Supabase возьмите Session pooler (порт 6543) и обновите backend/.env. "
+            "Также проверьте пароль и что выполнены SQL-скрипты из sql/."
+        ) from err
+
+
+def is_db_configured() -> bool:
+    cfg = _db_config()
+    return all(cfg.get(key) for key in ("user", "password", "host", "dbname"))
+
+
+def format_db_error(err: Exception) -> str:
+    if isinstance(err, UnicodeDecodeError):
+        return (
+            "Не удалось подключиться к PostgreSQL (ошибка кодировки Windows). "
+            "В Supabase: Settings → Database → Connection string → Session pooler, "
+            "скопируйте host, port=6543 и user вида postgres.XXXX. Обновите backend/.env."
+        )
+    msg = str(err).strip()
+    lowered = msg.lower()
+    if "utf-8" in lowered and "codec can't decode" in lowered:
+        return (
+            "Не удалось подключиться к PostgreSQL. "
+            "Используйте Session pooler из Supabase (порт 6543), не direct (5432). "
+            "Проверьте пароль и SQL-схему cdss."
+        )
+    if "connection refused" in lowered or "10061" in msg:
+        return (
+            "PostgreSQL недоступен (localhost:5432). "
+            "Прогноз рассчитан, но визит не сохранён. "
+            "Запустите БД или удалите backend/.env для работы без сохранения."
+        )
+    if "password authentication failed" in lowered:
+        return "Неверный логин или пароль в backend/.env."
+    if "could not translate host name" in lowered or "name or service not known" in lowered:
+        return "Не удаётся найти сервер БД. Проверьте host в backend/.env."
+    if "timeout expired" in lowered:
+        return "Таймаут подключения к БД. Проверьте host, порт и доступ в интернет (Supabase)."
+    if len(msg) > 220:
+        return msg[:220] + "…"
+    return msg
 
 
 def _find_or_insert_patient(cur, form: Dict[str, Any], patient: Dict[str, Any]) -> int:

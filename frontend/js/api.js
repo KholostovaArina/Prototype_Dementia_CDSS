@@ -1,15 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
-
-async function fetchTwoStreamsAnalytics() {
-    try {
-        const response = await fetch(`${API_URL}/analytics/two-streams`);
-        const result = await response.json();
-        if (!response.ok) return { success: false };
-        return result;
-    } catch {
-        return { success: false };
-    }
-}
+const API_URL = '/api';
 
 async function searchPatientsByFio(query) {
     try {
@@ -91,7 +80,15 @@ async function predictFromBackend(payload, drawingFiles) {
                 body: JSON.stringify(payload)
             });
         }
-        const result = await response.json();
+        const result = await response.json().catch(() => null);
+        if (!result) {
+            const hint = '❌ Сервер вернул некорректный ответ. Обновите страницу и попробуйте снова.';
+            if (typeof showPredictStatus === 'function') {
+                showPredictStatus(hint, 'err');
+            }
+            alert(hint);
+            return null;
+        }
         if (!response.ok) {
             const msg = result.error || response.status;
             if (typeof showPredictStatus === 'function') {
@@ -103,8 +100,9 @@ async function predictFromBackend(payload, drawingFiles) {
         return result;
     } catch (err) {
         console.error(err);
-        const hint =
-            '❌ Нет соединения с сервером. Запустите: cd backend → python app.py → откройте http://localhost:5000/';
+        const hint = window.location.protocol === 'file:'
+            ? '❌ Страница открыта как файл. Запустите сервер и откройте http://127.0.0.1:5000/ (не index.html из папки).'
+            : '❌ Не удалось связаться с сервером. Проверьте, что backend запущен, и обновите страницу.';
         if (typeof showPredictStatus === 'function') {
             showPredictStatus(hint, 'err');
         }

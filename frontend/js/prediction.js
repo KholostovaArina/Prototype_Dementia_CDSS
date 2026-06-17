@@ -909,7 +909,6 @@ function showPredictStatus(message, kind = 'info') {
         el.textContent = text;
         el.className = `predict-status predict-status--${kind}`;
     });
-    console.log('[predict]', kind, text);
 }
 
 function describeDbSave(data) {
@@ -921,7 +920,11 @@ function describeDbSave(data) {
         return { kind: 'info', text: data.save_message };
     }
     if (data.save_error) {
-        return { kind: 'warn', text: `В БД не сохранилось: ${data.save_error}`, save_error: data.save_error };
+        return {
+            kind: 'warn',
+            text: data.save_error,
+            save_error: data.save_error
+        };
     }
     return {
         kind: 'warn',
@@ -1084,7 +1087,7 @@ async function calculatePrediction() {
         );
         if (!data) {
             showPredictStatus(
-                '❌ Сервер не ответил. Запустите в папке backend: python app.py и откройте http://localhost:5000/',
+                '❌ Сервер не ответил. Откройте приложение через http://127.0.0.1:5000/ (не файл index.html).',
                 'err'
             );
             return;

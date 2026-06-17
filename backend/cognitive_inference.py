@@ -182,6 +182,3 @@ def run_prediction(payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-if __name__ == "__main__":
-    demo_flat = {"12w_pvpl": "8", "5w_nv": "3", "fab_total": "12", "benton_total": "11"}
-    print(json.dumps(run_prediction({"form": demo_flat, "patient": {"age": 71, "gender": "Женский"}}), ensure_ascii=False, indent=2))
