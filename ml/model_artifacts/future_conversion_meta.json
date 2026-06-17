@@ -1,0 +1,44 @@
+{
+  "horizon_years": 3,
+  "baseline_rule": "healthy_strict",
+  "feature_set": "domains_plus_attention",
+  "feature_set_label": "6 доменов + внимание: тмт1, DigitSpanобщее, цифров.замещ (Локшина 2021, домен Б)",
+  "features_order": [
+    "Память",
+    "Внимание",
+    "Управляющие функции",
+    "Праксис",
+    "Речь",
+    "Зрительное восприятие",
+    "тмт1",
+    "DigitSpanобщее",
+    "цифров.замещ"
+  ],
+  "description": "Прогноз конверсии за 3 года (фиксированная production-модель)",
+  "benchmark_metrics": {
+    "cohort": "healthy_strict",
+    "feature_set": "domains_plus_attention",
+    "feature_set_label": "6 доменов + внимание (тмт1, Digit Span, цифр. замещ.)",
+    "n_samples": 19,
+    "n_conversions": 9,
+    "features_order": [
+      "Память",
+      "Внимание",
+      "Управляющие функции",
+      "Праксис",
+      "Речь",
+      "Зрительное восприятие",
+      "тмт1",
+      "DigitSpanобщее",
+      "цифров.замещ"
+    ],
+    "horizon_years": 3,
+    "cohort_rule": "Здоровые: субъективные/отсутствуют нарушения или нет диагнозосн при нормальных тестах",
+    "n_features": 9,
+    "features": "Память; Внимание; Управляющие функции; Праксис; Речь; Зрительное восприятие; тмт1; DigitSpanобщее; цифров.замещ",
+    "accuracy": 0.6842,
+    "recall": 0.7778,
+    "roc_auc": 0.6889,
+    "cv_folds_used": 4
+  }
+}

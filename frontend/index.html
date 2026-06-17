@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CDSS — когнитивный прототип</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="bg-shapes" aria-hidden="true">
+        <span class="bg-shape bg-shape--1"></span>
+        <span class="bg-shape bg-shape--2"></span>
+        <span class="bg-shape bg-shape--3"></span>
+        <span class="bg-shape bg-shape--4"></span>
+        <span class="bg-shape bg-shape--5"></span>
+    </div>
+    <div class="container">
+        <header>
+            <h1>🧠 Система поддержки врачебных решений</h1>
+            <p>Прототип для диагностики когнитивных нарушений дементного типа</p>
+        </header>
+
+        <div id="printSheetHeader" class="print-sheet-header" aria-hidden="true"></div>
+
+        <div class="autofill-bar no-print" role="group" aria-label="Автозаполнение">
+            <span class="autofill-bar__label">Автозаполнение:</span>
+            <button type="button" class="autofill-btn autofill-btn--good" id="btnDemoGood">
+                <span class="autofill-btn__icon" aria-hidden="true">✓</span>
+                Здоровый пациент (низкий риск)
+            </button>
+            <button type="button" class="autofill-btn autofill-btn--bad" id="btnDemoBad">
+                <span class="autofill-btn__icon" aria-hidden="true">✕</span>
+                Максимальный риск (~100%)
+            </button>
+        </div>
+        
+        <nav class="tabs no-print">
+            <button class="tab-btn active" data-tab="patient">
+                <span class="tab-icon">👤</span>
+                <span class="tab-text">Основные данные</span>
+            </button>
+            <button class="tab-btn" data-tab="tests">
+                <span class="tab-icon">📋</span>
+                <span class="tab-text">Когнитивные тесты</span>
+            </button>
+            <button class="tab-btn" data-tab="prediction">
+                <span class="tab-icon">🔮</span>
+                <span class="tab-text">Расчёт риска</span>
+            </button>
+            <button class="tab-btn" data-tab="progression">
+                <span class="tab-icon">📈</span>
+                <span class="tab-text">Динамика болезни</span>
+            </button>
+        </nav>
+        
+        <main class="pages-container">
+            
+            <div id="patient" class="page active">
+                <div class="page-header">
+                    <h2>📋 Клинико-демографические данные</h2>
+                </div>
+                <form id="patientForm" class="medical-form">
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>📋 Метаданные визита</h3>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full-width fio-autocomplete-wrap">
+                                <label for="fio">ФИО пациента *</label>
+                                <input type="text" id="fio" name="fio" required placeholder="Иванов Иван Иванович" autocomplete="off" spellcheck="false">
+                                <ul id="fioSuggestions" class="fio-suggestions" hidden></ul>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="n_amb_karta">🆔 Номер амбулаторной карты</label>
+                                <input type="text" id="n_amb_karta" name="n_amb_karta" placeholder="123456">
+                            </div>
+                            <div class="form-group">
+                                <label for="n_vizit">📋 Номер визита</label>
+                                <input type="number" id="n_vizit" name="n_vizit" min="1" value="1" placeholder="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="date_osm">📅 Дата осмотра</label>
+                                <input type="date" id="date_osm" name="date_osm">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="doctor">👨‍⚕️ Лечащий врач</label>
+                                <input type="text" id="doctor" name="doctor">
+                            </div>
+                            <div class="form-group">&nbsp;</div>
+                            <div class="form-group">&nbsp;</div>
+                            <div class="form-group">&nbsp;</div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>👤 Демография</h3>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="age">👴 Возраст (лет) *</label>
+                                <input type="number" id="age" name="age" required min="18" max="120">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">⚥ Пол *</label>
+                                <select id="gender" name="gender" required>
+                                    <option value="">Выберите...</option>
+                                    <option value="мужской">Мужской</option>
+                                    <option value="женский">Женский</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="education">🎓 Образование</label>
+                                <select id="education" name="education">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Неоконченное среднее</option>
+                                    <option value="1">1 — Среднее</option>
+                                    <option value="2">2 — Неоконченное высшее</option>
+                                    <option value="3">3 — Высшее</option>
+                                    <option value="4">4 — Ученая степень</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>Когнитивный статус визита</h3>
+                        </div>
+                        <p class="form-block-hint">В начале — тяжесть нарушений и направляющий диагноз. Блок «Установленный диагноз» внизу — по желанию; в базу попадает при нажатии «Получить прогноз» (поля визита).</p>
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 2;">
+                                <label for="tip_sindroma_ukn">Типы синдрома УКН</label>
+                                <select id="tip_sindroma_ukn" name="tip_sindroma_ukn">
+                                    <option value="">Выберите...</option>
+                                    <option value="1">1 — монофункциональный амнестический</option>
+                                    <option value="2">2 — полифункциональный</option>
+                                    <option value="3">3 — полифункциональный амнестический</option>
+                                    <option value="4">4 — монофункциональный неамнестический</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex: 1; display: flex; align-items: flex-end; padding-bottom: 12px;">
+                                <div style="background: #fff3cd; border-left: 3px solid #ffc107; padding: 10px 15px; border-radius: 4px; font-size: 0.85em; color: #856404; line-height: 1.3;">
+                                    💡 Может заполняться автоматически при расчёте риска
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tyazhest_narush">Тяжесть нарушений КФ</label>
+                                <select id="tyazhest_narush" name="tyazhest_narush">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет нарушений</option>
+                                    <option value="1">1 — Субъективные жалобы</option>
+                                    <option value="2">2 — Лёгкие когнитивные нарушения</option>
+                                    <option value="3">3 — Умеренные нарушения</option>
+                                    <option value="4">4 — Лёгкая деменция</option>
+                                    <option value="5">5 — Умеренная деменция</option>
+                                    <option value="6">6 — Тяжёлая деменция</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="techenie_bolezni">Течение болезни</label>
+                                <select id="techenie_bolezni" name="techenie_bolezni">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет прогрессирования</option>
+                                    <option value="1">1 — Флюктуирующее</option>
+                                    <option value="2">2 — Прогрессирующее</option>
+                                    <option value="3">3 — Улучшение</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dinamika_simptomov">Динамика симптомов</label>
+                                <select id="dinamika_simptomov" name="dinamika_simptomov">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Медленное</option>
+                                    <option value="2">2 — Умеренное</option>
+                                    <option value="3">3 — Быстрое</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="naprav_diagn">Направляющий диагноз</label>
+                                <select id="naprav_diagn" name="naprav_diagn">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Самотёк</option>
+                                    <option value="когнитивные нарушения">Когнитивные нарушения</option>
+                                    <option value="БА">Болезнь Альцгеймера (БА)</option>
+                                    <option value="сосудистая деменция">Сосудистая деменция</option>
+                                    <option value="смешанная">Смешанная деменция</option>
+                                    <option value="лобная деменция">Лобная деменция</option>
+                                    <option value="ДТЛ">Деменция с тельцами Леви (ДТЛ)</option>
+                                    <option value="другое">Другое</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dlit_zabol">Длительность заболевания (мес)</label>
+                                <input type="number" id="dlit_zabol" name="dlit_zabol" min="0" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="dlit_nabl">Длительность наблюдения (мес)</label>
+                                <input type="number" id="dlit_nabl" name="dlit_nabl" min="0" placeholder="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>💊 Анамнестические данные</h3>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Наследственная отягощенность по КН:</label>
+                                <select name="nasled_otya">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Есть</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Инфаркт миокарда:</label>
+                                <select name="infarkt">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Есть</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Тяжесть сердечных нарушений:</label>
+                                <select name="tyazh_serd">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Компенсированы</option>
+                                    <option value="2">2 — Частично компенсированы</option>
+                                    <option value="3">3 — Декомпенсированы</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Сахарный диабет:</label>
+                                <select name="sd_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Компенсирован без препаратов</option>
+                                    <option value="2">2 — Компенсирован на препаратах</option>
+                                    <option value="3">3 — Декомпенсирован</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Артериальная гипертензия:</label>
+                                <select name="ag_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Компенсирована без препаратов</option>
+                                    <option value="2">2 — Компенсирована на препаратах</option>
+                                    <option value="3">3 — Декомпенсирована</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>ОНМК:</label>
+                                <select name="onmk_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Однократное с полным восстановлением</option>
+                                    <option value="2">2 — Более одного с полным восстановлением</option>
+                                    <option value="3">3 — С неполным восстановлением</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Курение:</label>
+                                <select name="kurenie_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — В анамнезе</option>
+                                    <option value="2">2 — В настоящее время</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Злоупотребление алкоголем:</label>
+                                <select name="alkogol_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — В анамнезе, алкоголизма не было</option>
+                                    <option value="2">2 — В анамнезе, алкоголизм</option>
+                                    <option value="3">3 — В настоящее время</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Язвенная болезнь:</label>
+                                <select name="yazva">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Компенсирована</option>
+                                    <option value="2">2 — Декомпенсирована, не оперирована</option>
+                                    <option value="3">3 — Оперирована</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Онкология:</label>
+                                <select name="onkologia_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — В анамнезе, компенсирована</option>
+                                    <option value="2">2 — В н.вр., лечения не получает</option>
+                                    <option value="3">3 — В н.вр., лечение получает</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Патология щитовидной железы:</label>
+                                <select name="schit_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Компенсирована без препаратов</option>
+                                    <option value="2">2 — Компенсирована на препаратах</option>
+                                    <option value="3">3 — Декомпенсирована</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Наличие неврологической патологии:</label>
+                                <select name="nevr_patol_ana">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — В анамнезе</option>
+                                    <option value="2">2 — Есть, не связанные с КН</option>
+                                    <option value="3">3 — Есть, связанные с КН</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="test-block" style="margin-top: 20px;">
+                        <div class="test-header">
+                            <h3>Шкала Хачинского</h3>
+                        </div>
+                        <table class="test-table" style="width: 100%; table-layout: fixed;">
+                            <colgroup>
+                                <col style="width: 80%;">
+                                <col style="width: 20%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;">Признак</th>
+                                    <th>Отметка</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Внезапное начало (2)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_sudden_onset"></td>
+                                </tr>
+                                <tr>
+                                    <td>Ступенеобразное течение (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_stepwise"></td>
+                                </tr>
+                                <tr>
+                                    <td>Флуктуации (2)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_fluctuations"></td>
+                                </tr>
+                                <tr>
+                                    <td>Ночная спутанность (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_nocturnal_confusion"></td>
+                                </tr>
+                                <tr>
+                                    <td>Относительная сохранность личности (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_personality_preserved"></td>
+                                </tr>
+                                <tr>
+                                    <td>Депрессия (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_depression"></td>
+                                </tr>
+                                <tr>
+                                    <td>Соматические жалобы (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_somatic_complaints"></td>
+                                </tr>
+                                <tr>
+                                    <td>Эмоциональная несдержанность (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_emotional_incontinence"></td>
+                                </tr>
+                                <tr>
+                                    <td>АГ в анамнезе или н.вр. (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_hypertension"></td>
+                                </tr>
+                                <tr>
+                                    <td>Инсульт в анамнезе (2)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_stroke_history"></td>
+                                </tr>
+                                <tr>
+                                    <td>Др. сомат. признаки АСК (1)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_other_arteriosclerosis"></td>
+                                </tr>
+                                <tr>
+                                    <td>Субъективная неврол. симпт. (2)</td>
+                                    <td class="center"><input type="checkbox" name="hachinski_subjective_neuro_symptoms"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Объективная неврол. симпт. (2)</strong></td>
+                                    <td class="center"><input type="checkbox" name="hachinski_objective_neuro_symptoms"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td><strong>Общий балл:</strong></td>
+                                    <td class="center"><input type="number" id="hachinski_total" name="hachinski_total" min="0" max="18" readonly class="calc-input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>Неврологические симптомы</h3>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Мимические пробы:</label>
+                                <select name="mimic_tests">
+                                    <option value="0">0 — норма</option>
+                                    <option value="1">1 — центральный парез</option>
+                                    <option value="2">2 — периферический парез</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Ограничение взора:</label>
+                                <select name="eye_restriction">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — вниз</option>
+                                    <option value="2">2 — вертикальный парез</option>
+                                    <option value="3">3 — во всех направлениях</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Девиация языка:</label>
+                                <select name="tongue_deviation">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — центральный парез</option>
+                                    <option value="2">2 — периферический парез</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Рефлексы орального автоматизма:</label>
+                                <select name="oral_reflexes">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Псевдобульбарные симптомы:</label>
+                                <select name="pseudobulbar_symptoms">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Бульбарные симптомы:</label>
+                                <select name="bulbar_symptoms">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Пирамидный синдром:</label>
+                                <select name="pyramidal_syndrome">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — рефлекторный</option>
+                                    <option value="2">2 — лёгкий</option>
+                                    <option value="3">3 — выраженный</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Синдром паркинсонизма:</label>
+                                <select name="parkinsonism_syndrome">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженный</option>
+                                    <option value="2">2 — умеренно выраженный</option>
+                                    <option value="3">3 — выраженный</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Хорея:</label>
+                                <select name="chorea">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженная</option>
+                                    <option value="2">2 — умеренно выраженная</option>
+                                    <option value="3">3 — выраженная</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Миоклония:</label>
+                                <select name="myoclonia">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженная</option>
+                                    <option value="2">2 — умеренно выраженная</option>
+                                    <option value="3">3 — выраженная</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Другие гиперкинезы:</label>
+                                <select name="other_hyperkineses">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Постуральный тремор:</label>
+                                <select name="postural_tremor">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженный</option>
+                                    <option value="2">2 — умеренно выраженный</option>
+                                    <option value="3">3 — выраженный</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Интенционный тремор:</label>
+                                <select name="intentional_tremor">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженный</option>
+                                    <option value="2">2 — умеренно выраженный</option>
+                                    <option value="3">3 — выраженный</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Тремор покоя:</label>
+                                <select name="resting_tremor">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженный</option>
+                                    <option value="2">2 — умеренно выраженный</option>
+                                    <option value="3">3 — выраженный</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Глубокая чувствительность:</label>
+                                <select name="deep_sensitivity">
+                                    <option value="0">0 — нет нарушений</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Поверхностная чувствительность:</label>
+                                <select name="surface_sensitivity">
+                                    <option value="0">0 — нет нарушений</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Полинейропатический синдром:</label>
+                                <select name="polyneuropathic_syndrome">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженный</option>
+                                    <option value="2">2 — умеренно выраженный</option>
+                                    <option value="3">3 — выраженный</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Постуральные нарушения:</label>
+                                <select name="postural_disorders">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Падения:</label>
+                                <select name="falls">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — единичные</option>
+                                    <option value="2">2 — эпизодические</option>
+                                    <option value="3">3 — частые</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Мозжечковая атаксия:</label>
+                                <select name="cerebellar_ataxia">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженная</option>
+                                    <option value="2">2 — умеренно выраженная</option>
+                                    <option value="3">3 — выраженная</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Сенситивная атаксия:</label>
+                                <select name="sensitive_ataxia">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженная</option>
+                                    <option value="2">2 — умеренно выраженная</option>
+                                    <option value="3">3 — выраженная</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Вестибулярная атаксия:</label>
+                                <select name="vestibular_ataxia">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженная</option>
+                                    <option value="2">2 — умеренно выраженная</option>
+                                    <option value="3">3 — выраженная</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Лобная атаксия:</label>
+                                <select name="frontal_ataxia">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженная</option>
+                                    <option value="2">2 — умеренно выраженная</option>
+                                    <option value="3">3 — выраженная</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Функциональная атаксия:</label>
+                                <select name="functional_ataxia">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженная</option>
+                                    <option value="2">2 — умеренно выраженная</option>
+                                    <option value="3">3 — выраженная</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Хватательный рефлекс:</label>
+                                <select name="grasp_reflex">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — есть, но может подавить</option>
+                                    <option value="2">2 — есть, не может подавить</option>
+                                    <option value="3">3 — дистантный</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Тазовые расстройства:</label>
+                                <select name="pelvic_disorders">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — легко выраженные</option>
+                                    <option value="2">2 — умеренно выраженные</option>
+                                    <option value="3">3 — выраженные</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Характер тазовых нарушений:</label>
+                                <select name="pelvic_disorder_type">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — задержка</option>
+                                    <option value="2">2 — императивные позывы</option>
+                                    <option value="3">3 — неудержание</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Противоудержание:</label>
+                                <select name="counter_resistance">
+                                    <option value="0">0 — нет</option>
+                                    <option value="1">1 — есть, но может подавить</option>
+                                    <option value="2">2 — есть, не может подавить</option>
+                                    <option value="3">3 — грубо выражен, трудно согнуть конечность</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>🧠 Нарушения поведения</h3>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label>Нарушения поведения</label>
+                                <select name="behavior_disorders">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Легко выраженные</option>
+                                    <option value="2">2 — Умеренно выраженные</option>
+                                    <option value="3">3 — Выраженные</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>🔎 Инструментальные исследования</h3>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>МРТ (наличие)</label>
+                                <select name="mri1_presence">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Есть</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>КТ (наличие)</label>
+                                <select name="ct_presence">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Есть</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>МРТ2 (лейкоареоз перивентрикулярный)</label>
+                                <select name="mri2_periventricular">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Отсутствует</option>
+                                    <option value="1">1 — Единичные проявления</option>
+                                    <option value="2">2 — Умеренный</option>
+                                    <option value="3">3 — Выраженный</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>МРТ3 (лейкоареоз субкортикальный)</label>
+                                <select name="mri3_subcortical">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Отсутствует</option>
+                                    <option value="1">1 — Единичные проявления</option>
+                                    <option value="2">2 — Умеренный</option>
+                                    <option value="3">3 — Выраженный</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>МРТ4 (атрофия наружная)</label>
+                                <select name="mri4_external_atrophy">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Легко выраженная</option>
+                                    <option value="2">2 — Умеренно выраженная</option>
+                                    <option value="3">3 — Выраженная</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>МРТ5 (атрофия внутренняя)</label>
+                                <select name="mri5_internal_atrophy">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Легко выраженная</option>
+                                    <option value="2">2 — Умеренно выраженная</option>
+                                    <option value="3">3 — Выраженная</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>МРТ6 (постинсультные кисты)</label>
+                                <select name="mri6_cysts">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Единичные и в стратегически незначимых зонах</option>
+                                    <option value="2">2 — Множественные или в стратегически значимых зонах</option>
+                                    <option value="3">3 — Множественные и в стратегически значимых зонах</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="instrumental-subsection">
+                            <h4>🧲 МРТ (расширенная оценка)</h4>
+                            <div class="form-hint-box">
+                                Шкалы как в клинической базе (новая когорта). Поля необязательны.
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="mri_fazekas">Fazekas (перивентрикулярный лейкоареоз)</label>
+                                    <select id="mri_fazekas" name="МРТфазекас">
+                                        <option value="">Выберите...</option>
+                                        <option value="отсутствует">отсутствует</option>
+                                        <option value="фазекас 1">фазекас 1</option>
+                                        <option value="фазекас 2">фазекас 2</option>
+                                        <option value="фазекас 3">фазекас 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mri_gca">GCA (глобальная кортикальная атрофия)</label>
+                                    <select id="mri_gca" name="МРТGCA">
+                                        <option value="">Выберите...</option>
+                                        <option value="отсутствует">отсутствует</option>
+                                        <option value="легкая">легкая</option>
+                                        <option value="умеренная">умеренная</option>
+                                        <option value="выраженная">выраженная</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="mri_hippocampus">Атрофия гиппокампа (MTA)</label>
+                                    <select id="mri_hippocampus" name="МРТатрофгиппокамп">
+                                        <option value="">Выберите...</option>
+                                        <option value="отсутствует">отсутствует</option>
+                                        <option value="МТА 1">МТА 1</option>
+                                        <option value="МТА 2">МТА 2</option>
+                                        <option value="МТА 3">МТА 3</option>
+                                        <option value="МТА 4">МТА 4</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mri_local_atrophy">Локальная атрофия</label>
+                                    <select id="mri_local_atrophy" name="локатрофия">
+                                        <option value="">Выберите...</option>
+                                        <option value="нет">нет</option>
+                                        <option value="лобная доля">лобная доля</option>
+                                        <option value="теменная доля">теменная доля</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="instrumental-subsection">
+                            <h4>🧪 Биомаркеры СМЖ (ликвор)</h4>
+                            <div class="form-hint-box">
+                                Заполняйте при наличии результатов CSF-анализа (как в клинической базе).
+                                Соотношения τ/β-amyloid и p-tau/β-amyloid пересчитываются автоматически.
+                                Поля необязательны — оставьте пустыми, если исследование не проводилось.
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="biomarker_beta_amyloid">β-амилоид 1-42</label>
+                                    <input type="number" id="biomarker_beta_amyloid" name="бетаамилоид"
+                                           min="0" step="0.1" placeholder="напр. 612">
+                                    <span class="test-subtitle">пг/мл (типично 240–2500)</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="biomarker_total_tau">Общий тау-белок</label>
+                                    <input type="number" id="biomarker_total_tau" name="общийтаубелок"
+                                           min="0" step="0.1" placeholder="напр. 214">
+                                    <span class="test-subtitle">пг/мл (типично 80–1900)</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="biomarker_phospho_tau">Фосфорилированный тау (p-tau)</label>
+                                    <input type="number" id="biomarker_phospho_tau" name="фосфорилиртаубелок"
+                                           min="0" step="0.01" placeholder="напр. 22">
+                                    <span class="test-subtitle">пг/мл (типично 8–105)</span>
+                                </div>
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <select disabled style="opacity: 0.5;">
+                                        <option>—</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="biomarker_tau_amyloid_ratio">Соотношение общий τ / β-amyloid</label>
+                                    <input type="number" id="biomarker_tau_amyloid_ratio" name="общийтаубелокамилоид"
+                                           min="0" step="0.0001" readonly class="calc-input"
+                                           placeholder="авто">
+                                    <span class="test-subtitle">безразмерное (типично 0.05–1.7)</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="biomarker_phospho_tau_amyloid_ratio">Соотношение p-tau / β-amyloid</label>
+                                    <input type="number" id="biomarker_phospho_tau_amyloid_ratio" name="фосфорилиртаубелокамилоид"
+                                           min="0" step="0.0001" readonly class="calc-input"
+                                           placeholder="авто">
+                                    <span class="test-subtitle">безразмерное (типично 0.004–0.17)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>💊 Терапия</h3>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="treatment_duration_months">Длительность лечения (мес.)</label>
+                                <input type="number" id="treatment_duration_months" name="treatment_duration_months" min="0" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Лечение 1 (в анамнезе)</label>
+                                <select name="treatment1_history">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Не получал</option>
+                                    <option value="1">1 — Неспецифическая терапия</option>
+                                    <option value="2">2 — Специфическая терапия</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Лечение 3 (основная терапия)</label>
+                                <select name="treatment3_main">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Не получает</option>
+                                    <option value="1">1 — Мемантин</option>
+                                    <option value="2">2 — Ингибиторы АХЭС</option>
+                                    <option value="3">3 — Сосудистые</option>
+                                    <option value="4">4 — Ноотропы</option>
+                                    <option value="5">5 — Другое</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Лечение 4 (дополнительная терапия)</label>
+                                <select name="treatment4_additional">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Не получает</option>
+                                    <option value="1">1 — Мемантин</option>
+                                    <option value="2">2 — Ингибиторы АХЭС</option>
+                                    <option value="3">3 — Сосудистые</option>
+                                    <option value="4">4 — Ноотропы</option>
+                                    <option value="5">5 — Другое</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Лечение 5 (переносимость)</label>
+                                <select name="treatment5_tolerance">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет побочных эффектов</option>
+                                    <option value="1">1 — Легкие побочные эффекты, не требующие коррекции терапии</option>
+                                    <option value="2">2 — Побочные эффекты, требующие коррекции терапии</option>
+                                    <option value="3">3 — Побочные эффекты, требующие отмены препарата</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Изменение в схеме лечения</label>
+                                <select name="treatment_change">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Доза повышена</option>
+                                    <option value="2">2 — Доза снижена</option>
+                                    <option value="3">3 — Препарат отменен</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Назначение дополнительной терапии</label>
+                                <select name="treatment_additional_appointment">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Нет</option>
+                                    <option value="1">1 — Мемантин</option>
+                                    <option value="2">2 — Ингибиторы АХЭС</option>
+                                    <option value="3">3 — Неспецифическая терапия</option>
+                                    <option value="4">4 — Коррекция соматических расстройств</option>
+                                    <option value="5">5 — Другое</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-block test-block--diagnosis">
+                        <div class="test-header">
+                            <h3>Установленный диагноз</h3>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="diagnoz">Основной диагноз (диагнозосн)</label>
+                                <select id="diagnoz" name="diagnoz">
+                                    <option value="">Выберите...</option>
+                                    <option value="1">1 — Болезнь Альцгеймера</option>
+                                    <option value="2">2 — Сосудистая деменция</option>
+                                    <option value="3">3 — Смешанная деменция</option>
+                                    <option value="4">4 — Лобно-височная деменция</option>
+                                    <option value="5">5 — Болезнь Паркинсона</option>
+                                    <option value="6">6 — Деменция с тельцами Леви</option>
+                                    <option value="7">7 — Эмоциональные нарушения</option>
+                                    <option value="8">8 — Эндогенные нарушения</option>
+                                    <option value="9">9 — Сосудистые КР (дисциркуляторная энцефалопатия)</option>
+                                    <option value="10">10 — Другое</option>
+                                    <option value="11">11 — Прогрессирующий надъядерный паралич</option>
+                                    <option value="12">12 — Семантическая деменция</option>
+                                    <option value="13">13 — Первичная прогрессирующая афазия</option>
+                                    <option value="14">14 — Кортикобазальная дегенерация</option>
+                                    <option value="15">15 — Боковой амиотрофический склероз+деменция</option>
+                                    <option value="16">16 — ЧМТ</option>
+                                    <option value="17">17 — Токсическая энцефалопатия</option>
+                                    <option value="18">18 — Посттравматическая энцефалопатия</option>
+                                    <option value="19">19 — Корсаковский синдром</option>
+                                    <option value="20">20 — Задняя корковая атрофия</option>
+                                    <option value="21">21 — Нейросифилис</option>
+                                    <option value="22">22 — Под вопросом</option>
+                                    <option value="23">23 — Хорея Гентингтона</option>
+                                    <option value="24">24 — Субъективные жалобы на нарушения памяти</option>
+                                    <option value="25">25 — Нормотензивная гидроцефалия</option>
+                                    <option value="26">26 — Опухоль</option>
+                                    <option value="27">27 — Постинсультные КР</option>
+                                    <option value="28">28 — Дисметаболическая энцефалопатия</option>
+                                    <option value="29">29 — Нейроинфекция</option>
+                                    <option value="30">30 — Демиелинизирующее заболевание</option>
+                                    <option value="31">31 — Эпилепсия</option>
+                                    <option value="32">32 — Мультисистемная атрофия</option>
+                                    <option value="33">33 — Спиноцеребеллярная дегенерация</option>
+                                    <option value="34">34 — Эссенциальный тремор</option>
+                                    <option value="35">35 — Транзиторная глобальная амнезия</option>
+                                    <option value="36">36 — Психогенные нарушения</option>
+                                    <option value="37">37 — Миасиения</option>
+                                    <option value="38">38 — Постгипоксическая энцефалопатия</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="osobennosti_diagnoza">Особенности диагноза</label>
+                                <select id="osobennosti_diagnoza" name="osobennosti_diagnoza">
+                                    <option value="">Выберите...</option>
+                                    <option value="0">0 — Отсутствуют</option>
+                                    <option value="1">1 — Эмоциональные расстройства</option>
+                                    <option value="2">2 — Эндогенные расстройства</option>
+                                    <option value="3">3 — Поведенческие расстройства</option>
+                                    <option value="4">4 — Атипичное течение</option>
+                                    <option value="5">Другое</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-next" onclick="switchTab('tests')">
+                            📊 Перейти к тестированию →
+                        </button>
+                    </div>
+                </form>
+            </div>
+                     
+            
+            <div id="tests" class="page">
+                <div class="page-header">
+                    <h2>🧪 Нейропсихологическое тестирование</h2>
+                </div>
+                <form id="testsForm" class="medical-form">
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>1. Тест 12 слов</h3>
+                            <span class="test-max-score">(долговременная память)</span>
+                        </div>
+                        <table class="test-table test-table--words12">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2"></th>
+                                    <th>диван</th>
+                                    <th>блюдо</th>
+                                    <th>тигр</th>
+                                    <th>пижама</th>
+                                    <th>абрикос</th>
+                                    <th>вертолёт</th>
+                                    <th>рябина</th>
+                                    <th>река</th>
+                                    <th>палец</th>
+                                    <th>гроза</th>
+                                    <th>теннис</th>
+<th>флейта</th>
+                                    <th class="sum-header">∑</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>НВ</strong></td>
+                                    <td><input type="checkbox" name="12w_nv_1"></td>
+                                    <td><input type="checkbox" name="12w_nv_2"></td>
+                                    <td><input type="checkbox" name="12w_nv_3"></td>
+                                    <td><input type="checkbox" name="12w_nv_4"></td>
+                                    <td><input type="checkbox" name="12w_nv_5"></td>
+                                    <td><input type="checkbox" name="12w_nv_6"></td>
+                                    <td><input type="checkbox" name="12w_nv_7"></td>
+                                    <td><input type="checkbox" name="12w_nv_8"></td>
+                                    <td><input type="checkbox" name="12w_nv_9"></td>
+                                    <td><input type="checkbox" name="12w_nv_10"></td>
+                                    <td><input type="checkbox" name="12w_nv_11"></td>
+                                    <td><input type="checkbox" name="12w_nv_12"></td>
+                                    <td><input type="number" id="12w_nv_sum1" name="12w_nv_sum1" readonly class="calc-input small-input"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>СКП</strong></td>
+                                    <td><input type="checkbox" name="12w_skp_1"></td>
+                                    <td><input type="checkbox" name="12w_skp_2"></td>
+                                    <td><input type="checkbox" name="12w_skp_3"></td>
+                                    <td><input type="checkbox" name="12w_skp_4"></td>
+                                    <td><input type="checkbox" name="12w_skp_5"></td>
+                                    <td><input type="checkbox" name="12w_skp_6"></td>
+                                    <td><input type="checkbox" name="12w_skp_7"></td>
+                                    <td><input type="checkbox" name="12w_skp_8"></td>
+                                    <td><input type="checkbox" name="12w_skp_9"></td>
+                                    <td><input type="checkbox" name="12w_skp_10"></td>
+                                    <td><input type="checkbox" name="12w_skp_11"></td>
+                                    <td><input type="checkbox" name="12w_skp_12"></td>
+                                    <td><input type="number" id="12w_skp_sum1" name="12w_skp_sum1" readonly class="calc-input small-input"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="14" class="total-cell total-cell--wide"><strong>ПВПЛ:</strong> <input type="number" name="12w_pvpl" min="0" max="24" class="calc-input small-input" readonly></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="form-section" style="margin-top: 20px;">
+                            <p><strong>5 слов:</strong> лимонад, блюдце, грузовик, кинотеатр, кузнечик</p>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>НВ:</label>
+                                    <input type="number" name="5w_nv" min="0" max="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>ОВ:</label>
+                                    <input type="number" name="5w_ov" min="0" max="5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="test-table test-table--words12">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2"></th>
+                                    <th>диван</th>
+                                    <th>блюдо</th>
+                                    <th>тигр</th>
+                                    <th>пижама</th>
+                                    <th>абрикос</th>
+                                    <th>вертолёт</th>
+                                    <th>рябина</th>
+                                    <th>река</th>
+                                    <th>палец</th>
+                                    <th>гроза</th>
+                                    <th>теннис</th>
+<th>флейта</th>
+                                    <th class="sum-header">∑</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>ОВ</strong></td>
+                                    <td><input type="checkbox" name="12w_nv_1"></td>
+                                    <td><input type="checkbox" name="12w_nv_2"></td>
+                                    <td><input type="checkbox" name="12w_nv_3"></td>
+                                    <td><input type="checkbox" name="12w_nv_4"></td>
+                                    <td><input type="checkbox" name="12w_nv_5"></td>
+                                    <td><input type="checkbox" name="12w_nv_6"></td>
+                                    <td><input type="checkbox" name="12w_nv_7"></td>
+                                    <td><input type="checkbox" name="12w_nv_8"></td>
+                                    <td><input type="checkbox" name="12w_nv_9"></td>
+                                    <td><input type="checkbox" name="12w_nv_10"></td>
+                                    <td><input type="checkbox" name="12w_nv_11"></td>
+                                    <td><input type="checkbox" name="12w_nv_12"></td>
+                                    <td><input type="number" id="12w_nv_sum2" name="12w_nv_sum2" readonly class="calc-input small-input"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>СКП</strong></td>
+                                    <td><input type="checkbox" name="12w_skp_1"></td>
+                                    <td><input type="checkbox" name="12w_skp_2"></td>
+                                    <td><input type="checkbox" name="12w_skp_3"></td>
+                                    <td><input type="checkbox" name="12w_skp_4"></td>
+                                    <td><input type="checkbox" name="12w_skp_5"></td>
+                                    <td><input type="checkbox" name="12w_skp_6"></td>
+                                    <td><input type="checkbox" name="12w_skp_7"></td>
+                                    <td><input type="checkbox" name="12w_skp_8"></td>
+                                    <td><input type="checkbox" name="12w_skp_9"></td>
+                                    <td><input type="checkbox" name="12w_skp_10"></td>
+                                    <td><input type="checkbox" name="12w_skp_11"></td>
+                                    <td><input type="checkbox" name="12w_skp_12"></td>
+                                    <td><input type="number" id="12w_skp_sum2" name="12w_skp_sum2" readonly class="calc-input small-input"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="14" class="total-cell total-cell--wide"><strong>ОВ:</strong> <input type="number" name="12w_ov" min="0" max="24" class="calc-input small-input" readonly></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>2. Пространственные функции</h3>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Тест рисования часов (0–10):</label>
+                                <span class="field-hint">меньше = лучше (0 — без ошибок)</span>
+                                <input type="number" name="clock" min="0" max="10" placeholder="0–10">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Рисование куба (0-3):</label>
+                                <select name="cube">
+                                    <option value="" selected>—</option>
+                                    <option value="0">0 — Без патологии</option>
+                                    <option value="1">1 — Единичные ошибки</option>
+                                    <option value="2">2 — Не может нарисовать, но срисовывает</option>
+                                    <option value="3">3 — Не может срисовать</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>3. Тест ассоциаций (слова на букву «С»)</h3>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="assoc_c" min="0" max="50" placeholder="кол-во слов">
+                        </div>
+                        
+                        <div class="test-header" style="margin-top: 20px;">
+                            <h3>4. Категориальные (животные) (20)</h3>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" name="assoc_animals" min="0" max="20" placeholder="кол-во животных">
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>5. MMSE (30)</h3>
+                        </div>
+                        <table class="test-table test-table--mmse">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Ориентация</th>
+                                    <th>Повтор.</th>
+                                    <th>Счёт</th>
+                                    <th>Память</th>
+                                    <th colspan="5">Речь</th>
+                                    <th>Праксис</th>
+                                </tr>
+                                <tr>
+                                    <th>Время<br>(5)</th>
+                                    <th>Место<br>(5)</th>
+                                    <th>(3)</th>
+                                    <th>(5)</th>
+                                    <th>(3)</th>
+                                    <th>Назв. (2)</th>
+                                    <th>Фраза (1)</th>
+                                    <th>Ком. (3)</th>
+                                    <th>Чт. (1)</th>
+                                    <th>Письмо (1)</th>
+                                    <th>(1)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" name="mmse_time" min="0" max="5"></td>
+                                    <td><input type="number" name="mmse_place" min="0" max="5"></td>
+                                    <td><input type="number" name="mmse_repeat" min="0" max="3"></td>
+                                    <td><input type="number" name="mmse_count" min="0" max="5"></td>
+                                    <td><input type="number" name="mmse_memory" min="0" max="3"></td>
+                                    <td><input type="number" name="mmse_naming" min="0" max="2"></td>
+                                    <td><input type="number" name="mmse_phrase" min="0" max="1"></td>
+                                    <td><input type="number" name="mmse_command" min="0" max="3"></td>
+                                    <td><input type="number" name="mmse_read" min="0" max="1"></td>
+                                    <td><input type="number" name="mmse_write" min="0" max="1"></td>
+                                    <td><input type="number" name="mmse_praxis" min="0" max="1"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="10"><strong>Общий балл MMSE:</strong></td>
+                                    <td><input type="number" id="mmse_total" name="mmse_total" min="0" max="30" readonly class="calc-input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>6. Тест Бентона на зрительную память</h3>
+                            <span class="test-max-score">(кол-во правильных ответов)</span>
+                        </div>
+                        <table class="test-table">
+                            <thead>
+                                <tr>
+                                    <th>№</th>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>D</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td><input type="checkbox" name="b1a"></td><td><input type="checkbox" name="b1b"></td><td><input type="checkbox" name="b1c"></td><td><input type="checkbox" name="b1d" data-correct="true"></td></tr>
+                                <tr><td>2</td><td><input type="checkbox" name="b2a" data-correct="true"></td><td><input type="checkbox" name="b2b"></td><td><input type="checkbox" name="b2c"></td><td><input type="checkbox" name="b2d"></td></tr>
+                                <tr><td>3</td><td><input type="checkbox" name="b3a"></td><td><input type="checkbox" name="b3b"></td><td><input type="checkbox" name="b3c" data-correct="true"></td><td><input type="checkbox" name="b3d"></td></tr>
+                                <tr><td>4</td><td><input type="checkbox" name="b4a"></td><td><input type="checkbox" name="b4b"></td><td><input type="checkbox" name="b4c" data-correct="true"></td><td><input type="checkbox" name="b4d"></td></tr>
+                                <tr><td>5</td><td><input type="checkbox" name="b5a"></td><td><input type="checkbox" name="b5b" data-correct="true"></td><td><input type="checkbox" name="b5c"></td><td><input type="checkbox" name="b5d"></td></tr>
+                                <tr><td>6</td><td><input type="checkbox" name="b6a"></td><td><input type="checkbox" name="b6b"></td><td><input type="checkbox" name="b6c"></td><td><input type="checkbox" name="b6d" data-correct="true"></td></tr>
+                                <tr><td>7</td><td><input type="checkbox" name="b7a"></td><td><input type="checkbox" name="b7b" data-correct="true"></td><td><input type="checkbox" name="b7c"></td><td><input type="checkbox" name="b7d"></td></tr>
+                                <tr><td>8</td><td><input type="checkbox" name="b8a" data-correct="true"></td><td><input type="checkbox" name="b8b"></td><td><input type="checkbox" name="b8c"></td><td><input type="checkbox" name="b8d"></td></tr>
+                                <tr><td>9</td><td><input type="checkbox" name="b9a" data-correct="true"></td><td><input type="checkbox" name="b9b"></td><td><input type="checkbox" name="b9c"></td><td><input type="checkbox" name="b9d"></td></tr>
+                                <tr><td>10</td><td><input type="checkbox" name="b10a"></td><td><input type="checkbox" name="b10b"></td><td><input type="checkbox" name="b10c" data-correct="true"></td><td><input type="checkbox" name="b10d"></td></tr>
+                                <tr><td>11</td><td><input type="checkbox" name="b11a"></td><td><input type="checkbox" name="b11b" data-correct="true"></td><td><input type="checkbox" name="b11c"></td><td><input type="checkbox" name="b11d"></td></tr>
+                                <tr><td>12</td><td><input type="checkbox" name="b12a"></td><td><input type="checkbox" name="b12b"></td><td><input type="checkbox" name="b12c" data-correct="true"></td><td><input type="checkbox" name="b12d"></td></tr>
+                                <tr><td>13</td><td><input type="checkbox" name="b13a" data-correct="true"></td><td><input type="checkbox" name="b13b"></td><td><input type="checkbox" name="b13c"></td><td><input type="checkbox" name="b13d"></td></tr>
+                                <tr><td>14</td><td><input type="checkbox" name="b14a"></td><td><input type="checkbox" name="b14b"></td><td><input type="checkbox" name="b14c"></td><td><input type="checkbox" name="b14d" data-correct="true"></td></tr>
+                                <tr><td>15</td><td><input type="checkbox" name="b15a"></td><td><input type="checkbox" name="b15b"></td><td><input type="checkbox" name="b15c" data-correct="true"></td><td><input type="checkbox" name="b15d"></td></tr>
+                            </tbody>
+                        </table>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Итого правильных ответов:</label>
+                            <input type="number" id="benton_total" name="benton_total" min="0" max="15" readonly class="calc-input">
+                        </div>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header test-header--stacked">
+                            <h3>7. Графомоторная проба</h3>
+                        </div>
+                        <p class="test-scale-hint">Забор: 0 — без ошибок; 1 — с ошибками; 2 — персеверации; 3 — не выполняет.</p>
+                        <div class="form-group">
+                            <select name="graphomotor" class="full-width">
+                                <option value="" selected>— не проводилась</option>
+                                <option value="0">0 — Без ошибок</option>
+                                <option value="1">1 — Рисует с ошибками</option>
+                                <option value="2">2 — Перманентные персеверации</option>
+                                <option value="3">3 — Не выполняет задание</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="test-block drawing-card">
+                        <div class="test-header test-header--stacked">
+                            <h3>Фото рисунков</h3>
+                            <span class="test-subtitle">необязательно · сохраняются вместе с прогнозом</span>
+                        </div>
+                        <div class="drawing-card__grid">
+                            <label class="drawing-card__item">
+                                <span class="drawing-card__name">Часы</span>
+                                <input type="file" accept="image/*" data-drawing="clock_drawing">
+                            </label>
+                            <label class="drawing-card__item">
+                                <span class="drawing-card__name">Куб</span>
+                                <input type="file" accept="image/*" data-drawing="cube_copy">
+                            </label>
+                            <label class="drawing-card__item">
+                                <span class="drawing-card__name">Забор</span>
+                                <input type="file" accept="image/*" data-drawing="graphomotor_fence">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>8. TMT — часть A и часть B</h3>
+                            <span class="test-subtitle">Время прохождения, секунды</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tmt_a_seconds">ТМТ, часть A (сек)</label>
+                                <input type="number" id="tmt_a_seconds" name="tmt_a_seconds" min="0" step="1" placeholder="сек">
+                            </div>
+                            <div class="form-group">
+                                <label for="тмтB">ТМТ, часть B (сек)</label>
+                                <input type="number" id="тмтB" name="тмтB" min="0" step="1" placeholder="сек">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>9. Digit symbol (90 сек)</h3>
+                            <span class="test-subtitle">(правильных отметок) (макс.135)</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="digit_symbol">Правильных за 90 сек</label>
+                            <input type="number" id="digit_symbol" name="digit_symbol" min="0" max="135" placeholder="замещение">
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label for="digit_symbol_correct">Правильных (второй показатель)</label>
+                            <input type="number" id="digit_symbol_correct" name="digit_symbol_correct" min="0" max="135" placeholder="для модели / цифровправ">
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>10. FAB(18)</h3>
+                        </div>
+                        <table class="test-table test-table--fab">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Концептуализация-1<br><small>(3)</small></th>
+                                    <th rowspan="2">Беглость речи-2<br><small>(3)</small></th>
+                                    <th rowspan="2">Праксис-3<br><small>(3)</small></th>
+                                    <th colspan="2">Реакция выбора (6)</th>
+                                    <th rowspan="2">Хватательный рефлекс-6<br><small>(3)</small></th>
+                                </tr>
+                                <tr>
+                                    <th>Простая -4<br><small>(3)</small></th>
+                                    <th>Сложная-5<br><small>(3)</small></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" name="fab1" id="fab1" min="0" max="3" class="calc-input"></td>
+                                    <td><input type="number" name="fab2" id="fab2" min="0" max="3" class="calc-input"></td>
+                                    <td><input type="number" name="fab3" id="fab3" min="0" max="3" class="calc-input"></td>
+                                    <td><input type="number" name="fab4" id="fab4" min="0" max="3" class="calc-input"></td>
+                                    <td><input type="number" name="fab5" id="fab5" min="0" max="3" class="calc-input"></td>
+                                    <td><input type="number" name="fab6" id="fab6" min="0" max="3" class="calc-input"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="6"><strong>FAB общий балл (макс. 18):</strong> <input type="number" id="fab_total" name="fab_total" min="0" max="18" readonly class="calc-input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="form-section" style="margin-top: 20px; background: #fff3cd; border-left-color: #ffc107;">
+                            <p><strong>РК (реципрокная координация)</strong> (0-ошибок нет, 1-трудности в ПР, 2- трудности в ЛР, 3- не справляется)</p>
+                        </div>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>11. Бостонский тест называния (карточки 31-40)</h3>
+                        </div>
+                        <table class="test-table">
+                            <thead>
+                                <tr>
+                                    <th>Правильно-</th>
+                                    <th>СПК</th>
+                                    <th>ФПК</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" id="boston_correct" name="boston_correct" min="0" max="20" readonly class="calc-input" title="СПК + ФПК"></td>
+                                    <td><input type="number" id="boston_spk" name="boston_spk" min="0" max="10"></td>
+                                    <td><input type="number" id="boston_fpk" name="boston_fpk" min="0" max="10"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>12. Клинический рейтинг деменции</h3>
+                            <span class="test-subtitle">(0; 0.5; 1; 2; 3) — меньше = лучше</span>
+                        </div>
+                        <table class="test-table">
+                            <thead>
+                                <tr>
+                                    <th>Домен</th>
+                                    <th>Баллы</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1. Память</td>
+                                    <td>
+                                        <select name="cdr_memory">
+                                            <option value="0">0</option>
+                                            <option value="0.5">0.5</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2. Ориентировка</td>
+                                    <td>
+                                        <select name="cdr_orientation">
+                                            <option value="0">0</option>
+                                            <option value="0.5">0.5</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3. Мышление</td>
+                                    <td>
+                                        <select name="cdr_judgment">
+                                            <option value="0">0</option>
+                                            <option value="0.5">0.5</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4. Взаимодействие в обществе</td>
+                                    <td>
+                                        <select name="cdr_community">
+                                            <option value="0">0</option>
+                                            <option value="0.5">0.5</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5. Поведение дома и увлечения</td>
+                                    <td>
+                                        <select name="cdr_home">
+                                            <option value="0">0</option>
+                                            <option value="0.5">0.5</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>6. Самообслуживание</td>
+                                    <td>
+                                        <select name="cdr_care">
+                                            <option value="0">0</option>
+                                            <option value="0.5">0.5</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td><strong>Сумма</strong> (балл за память, или любых 3 других пункта)</td>
+                                    <td><input type="number" id="cdr_sum" name="cdr_sum" min="0" max="18" step="0.5" readonly class="calc-input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>13. NPI</h3>
+                        </div>
+                        <table class="test-table test-table--npi">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Разделы</th>
+                                    <th rowspan="2">НП</th>
+                                    <th rowspan="2">НЕТ</th>
+                                    <th>Частота (Ч)</th>
+                                    <th>Выраженность</th>
+                                    <th rowspan="2">ЧхВ</th>
+                                    <th>Дистресс</th>
+                                </tr>
+                                <tr>
+                                    <th>1 2 3 4</th>
+                                    <th>1 2 3</th>
+                                    <th>1 2 3 4 5</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Бредовые идеи</td>
+                                    <td><input type="checkbox" name="npi_delusions_no" id="npi_delusions_no" style="display:none;"><label for="npi_delusions_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_delusions_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_delusions_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_delusions_prod" name="npi_delusions_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_delusions_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Галлюцинации</td>
+                                    <td><input type="checkbox" name="npi_halluc_no" id="npi_halluc_no" style="display:none;"><label for="npi_halluc_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_halluc_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_halluc_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_halluc_prod" name="npi_halluc_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_halluc_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Возбуждение</td>
+                                    <td><input type="checkbox" name="npi_agitation_no" id="npi_agitation_no" style="display:none;"><label for="npi_agitation_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_agitation_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_agitation_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_agitation_prod" name="npi_agitation_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_agitation_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Депрессия/дисфория</td>
+                                    <td><input type="checkbox" name="npi_depression_no" id="npi_depression_no" style="display:none;"><label for="npi_depression_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_depression_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_depression_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_depression_prod" name="npi_depression_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_depression_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Тревога</td>
+                                    <td><input type="checkbox" name="npi_anxiety_no" id="npi_anxiety_no" style="display:none;"><label for="npi_anxiety_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_anxiety_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_anxiety_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_anxiety_prod" name="npi_anxiety_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_anxiety_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Эйфория/гипертимия</td>
+                                    <td><input type="checkbox" name="npi_euphoria_no" id="npi_euphoria_no" style="display:none;"><label for="npi_euphoria_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_euphoria_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_euphoria_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_euphoria_prod" name="npi_euphoria_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_euphoria_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Апатия/индифферентность</td>
+                                    <td><input type="checkbox" name="npi_apathy_no" id="npi_apathy_no" style="display:none;"><label for="npi_apathy_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_apathy_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_apathy_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_apathy_prod" name="npi_apathy_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_apathy_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Расторможенность</td>
+                                    <td><input type="checkbox" name="npi_disinhibition_no" id="npi_disinhibition_no" style="display:none;"><label for="npi_disinhibition_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_disinhibition_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_disinhibition_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_disinhibition_prod" name="npi_disinhibition_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_disinhibition_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Раздражительность/эмоц.лабильность</td>
+                                    <td><input type="checkbox" name="npi_irritability_no" id="npi_irritability_no" style="display:none;"><label for="npi_irritability_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_irritability_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_irritability_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_irritability_prod" name="npi_irritability_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_irritability_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Аномальная двиг.активность</td>
+                                    <td><input type="checkbox" name="npi_motor_no" id="npi_motor_no" style="display:none;"><label for="npi_motor_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_motor_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_motor_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_motor_prod" name="npi_motor_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_motor_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td colspan="3"><strong>ИТОГОВЫЙ БАЛЛ NPI (0-144)</strong></td>
+                                    <td colspan="4"><input type="number" id="npi_total" name="npi_total" min="0" max="144"></td>
+                                </tr>
+                                <tr>
+                                    <td>Нарушение сна и поведения ночью</td>
+                                    <td><input type="checkbox" name="npi_sleep_no" id="npi_sleep_no" style="display:none;"><label for="npi_sleep_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_sleep_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_sleep_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_sleep_prod" name="npi_sleep_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_sleep_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                                <tr>
+                                    <td>Изменение аппетита и пищ.поведения</td>
+                                    <td><input type="checkbox" name="npi_appetite_no" id="npi_appetite_no" style="display:none;"><label for="npi_appetite_no" class="npi-cross">×</label></td>
+                                    <td><span class="npi-zero">0</span></td>
+                                    <td><select name="npi_appetite_freq"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></td>
+                                    <td><select name="npi_appetite_sev"><option value=""></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></td>
+                                    <td><input type="number" id="npi_appetite_prod" name="npi_appetite_prod" min="0" max="12" readonly class="calc-input"></td>
+                                    <td><select name="npi_appetite_distress"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="form-section" style="margin-top: 20px; background: #fff3cd; border-left-color: #ffc107;">
+                            <p><strong>Если выявлена депрессия по NPI, то переходим к депрессивным шкалам.</strong></p>
+                        </div>
+                    </div>
+                    
+                    <div class="test-block">
+                        <div class="test-header">
+                            <h3>14. Шкала Гамильтона (2 отдельных балла)</h3>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ГамильтонДепрессия">Гамильтон — депрессия</label>
+                                <input type="number" id="ГамильтонДепрессия" name="ГамильтонДепрессия" min="0" max="52" placeholder="баллы">
+                            </div>
+                            <div class="form-group">
+                                <label for="ГамильтонТревога">Гамильтон — тревога</label>
+                                <input type="number" id="ГамильтонТревога" name="ГамильтонТревога" min="0" max="56" placeholder="баллы">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="шкалаапатии">Шкала апатии</label>
+                                <input type="number" id="шкалаапатии" name="шкалаапатии" min="0" max="42" placeholder="Баллы">
+                                <span class="test-subtitle">Не путать с NPI «Апатия/индифферентность»</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="beck">Шкала Бека (опционально)</label>
+                                <input type="number" id="beck" name="beck" min="0" max="63" placeholder="Баллы">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="predictStatus" class="predict-status" role="status" aria-live="polite" hidden></div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-prev" onclick="switchTab('patient')">← Назад</button>
+                        <button type="button" class="btn btn-primary" id="btnPredict" onclick="calculatePrediction()">
+                            🔮 Получить прогноз
+                        </button>
+                        <button type="button" class="btn btn-secondary no-print" onclick="printApplication()">
+                            🖨️ Печать
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="prediction" class="page">
+                <div class="page-header">
+                    <h2>Расчёт риска</h2>
+                </div>
+                <div id="predictSaveCard" class="predict-save-card" hidden></div>
+                <div id="predictStatusResult" class="predict-status" role="status" aria-live="polite" hidden></div>
+                <div class="risk-hero">
+                    <span id="riskPercentHero">—</span><span class="risk-suffix">%</span>
+                </div>
+                <p class="prediction-sub">Вероятность перехода к когнитивным нарушениям дементного типа за 3 года</p>
+                <div id="predictionImpairmentWrap" class="impairment-panel" hidden>
+                    <p class="impairment-panel__heading">Паттерн нарушения</p>
+                    <div class="impairment-panel__body">
+                        <p id="predictionImpairmentTitle" class="impairment-pattern-tag"></p>
+                        <p id="predictionImpairmentDetail" class="impairment-panel__detail" hidden></p>
+                    </div>
+                </div>
+                <div class="test-block">
+                    <div class="test-header"><h3>Домены: доля сохранности (100% — норма)</h3></div>
+                    <div class="domains-chart-wrap domains-chart-wrap--prediction">
+                        <canvas id="predictionDomainsChart"></canvas>
+                    </div>
+                </div>
+                <div id="visitCommentBlock" class="test-block visit-comment-block" hidden>
+                    <div class="test-header"><h3>Комментарий к визиту</h3></div>
+                    <p class="visit-comment-lead">Сохраняется в базу данных вместе с визитом.</p>
+                    <textarea id="visitCommentInput" class="visit-comment-input" rows="4" placeholder="Заметки врача по этому визиту…"></textarea>
+                    <div class="visit-comment-actions">
+                        <button type="button" class="btn btn-primary" id="btnSaveVisitComment">Сохранить комментарий</button>
+                        <span id="visitCommentStatus" class="visit-comment-status" role="status"></span>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-prev" onclick="switchTab('tests')">← Назад к тестам</button>
+                    <button type="button" class="btn btn-primary" onclick="switchTab('progression')">Динамика в сеансе</button>
+                    <button type="button" class="btn btn-secondary no-print" onclick="printApplication()">Печать</button>
+                </div>
+            </div>
+
+            <div id="progression" class="page">
+                <div class="page-header">
+                    <h2>🔮 Результаты мониторинга</h2>
+                </div>
+                
+                <div class="risk-chart-container">
+                    <h3>📈 Динамика риска КН дементного типа</h3>
+                    <canvas id="riskChart"></canvas>
+                </div>
+                
+                <div class="domains-chart-container">
+                    <h3>Профиль доменов (последний расчёт в этом сеансе)</h3>
+                    <div class="domains-chart-wrap domains-chart-wrap--session">
+                        <canvas id="domainsChart"></canvas>
+                    </div>
+                </div>
+                
+                <p style="opacity:0.85;margin:12px 0;">Каждый новый расчёт на вкладке тестов добавляет точку в графики и блок ниже.</p>
+                <div id="visitHistoryMount" class="visits-container"></div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-prev" onclick="switchTab('prediction')">← Назад к расчёту риска</button>
+                    <button type="button" class="btn btn-primary no-print" onclick="printApplication()">
+                        🖨️ Печать отчёта
+                    </button>
+                </div>
+            </div>
+            
+        </main>
+        
+        <footer>
+            <p>Бакалаврская работа © 2026 | Холостова Арина</p>
+        </footer>
+    </div>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/print.js"></script>
+    <script src="js/prediction.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const saveBtn = document.querySelector('#patientForm button[type="submit"]');
+            if (!saveBtn) return;
+            saveBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
+                const gv = document.querySelector('select[name="gender"]')?.value || '';
+                const patient = {
+                    fio: document.querySelector('input[name="fio"]')?.value,
+                    age: parseInt(document.querySelector('input[name="age"]')?.value, 10),
+                    gender: gv,
+                    education: document.querySelector('select[name="education"]')?.value || '',
+                    heredity_cn: document.querySelector('select[name="nasled_otya"]')?.value === '1' ? 'Y' : 'N'
+                };
+                const visit = {
+                    visit_date: document.querySelector('input[name="date_osm"]')?.value || '',
+                    doctor: document.querySelector('input[name="doctor"]')?.value || '',
+                    visit_number: parseInt(document.querySelector('input[name="n_vizit"]')?.value, 10) || 1,
+                };
+                const testResults = {};
+                document.querySelectorAll('input[data-test]').forEach(input => {
+                    if (input.value) testResults[input.dataset.test] = parseFloat(input.value);
+                });
+                const result = await saveDataToBackend(patient, visit, testResults);
+});
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const npiTotalInput = document.getElementById("npi_total");
+            const productInputs = document.querySelectorAll("input[id$='_prod']");
+
+            function calculateNPITotal() {
+                let total = 0;
+                productInputs.forEach(input => {
+                    total += parseFloat(input.value) || 0;
+                });
+                npiTotalInput.value = total;
+            }
+
+            productInputs.forEach(input => {
+                input.addEventListener("input", calculateNPITotal);
+            });
+            const fabInputs = ['fab1', 'fab2', 'fab3', 'fab4', 'fab5', 'fab6'];
+            const fabTotalInput = document.getElementById('fab_total');
+
+            function calculateFABTotal() {
+                let total = 0;
+                fabInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    total += parseInt(input.value) || 0;
+                });
+                fabTotalInput.value = total;
+            }
+
+            fabInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', calculateFABTotal);
+                }
+            });
+            const biomarkerAmyloid = document.getElementById('biomarker_beta_amyloid');
+            const biomarkerTotalTau = document.getElementById('biomarker_total_tau');
+            const biomarkerPhosphoTau = document.getElementById('biomarker_phospho_tau');
+            const biomarkerTauRatio = document.getElementById('biomarker_tau_amyloid_ratio');
+            const biomarkerPhosphoRatio = document.getElementById('biomarker_phospho_tau_amyloid_ratio');
+
+            function calculateBiomarkerRatios() {
+                const amyloid = parseFloat(biomarkerAmyloid?.value);
+                const totalTau = parseFloat(biomarkerTotalTau?.value);
+                const phosphoTau = parseFloat(biomarkerPhosphoTau?.value);
+
+                if (!biomarkerTauRatio || !biomarkerPhosphoRatio) return;
+
+                if (!amyloid || amyloid <= 0 || Number.isNaN(amyloid)) {
+                    biomarkerTauRatio.value = '';
+                    biomarkerPhosphoRatio.value = '';
+                    return;
+                }
+
+                if (!Number.isNaN(totalTau) && totalTau >= 0) {
+                    biomarkerTauRatio.value = (totalTau / amyloid).toFixed(5);
+                } else {
+                    biomarkerTauRatio.value = '';
+                }
+
+                if (!Number.isNaN(phosphoTau) && phosphoTau >= 0) {
+                    biomarkerPhosphoRatio.value = (phosphoTau / amyloid).toFixed(5);
+                } else {
+                    biomarkerPhosphoRatio.value = '';
+                }
+            }
+
+            [biomarkerAmyloid, biomarkerTotalTau, biomarkerPhosphoTau].forEach((el) => {
+                if (el) {
+                    el.addEventListener('input', calculateBiomarkerRatios);
+                    el.addEventListener('change', calculateBiomarkerRatios);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

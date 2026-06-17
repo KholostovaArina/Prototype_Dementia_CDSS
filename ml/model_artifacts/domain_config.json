@@ -1,0 +1,608 @@
+{
+  "SOURCE": {
+    "title": "Маппинг столбцов.xlsx (Лист1)",
+    "authors": "Локшина А.Б. и соавт. — домены; параметры тестов — файл маппинга",
+    "journal": "Неврология, нейропсихиатрия, психосоматика",
+    "year": 2021,
+    "note": "Доля сохранности домена — среднее нормализованных тестов с lokshina_protocol=true. Один тест может входить в несколько доменов (domains[])."
+  },
+  "DOMAINS": [
+    "Память",
+    "Внимание",
+    "Управляющие функции",
+    "Праксис",
+    "Речь",
+    "Зрительное восприятие"
+  ],
+  "LOKSHINA_DOMAIN_LETTERS": {
+    "Память": "Па",
+    "Внимание": "В",
+    "Управляющие функции": "УФ",
+    "Праксис": "Пр",
+    "Речь": "Р",
+    "Зрительное восприятие": "З"
+  },
+  "TEST_CONFIG": {
+    "тмт1": {
+      "min": 0,
+      "max": 180.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domain": "Внимание",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен В"
+    },
+    "DigitSpanвперед": {
+      "min": 0,
+      "max": 9.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Внимание",
+        "Память",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен В+Па+УФ"
+    },
+    "DigitSpanназад": {
+      "min": 0,
+      "max": 8.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Внимание",
+        "Память",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен В+Па+УФ"
+    },
+    "DigitSpanобщее": {
+      "min": 0,
+      "max": 17.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Внимание",
+        "Память",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен В+Па+УФ"
+    },
+    "цифров.замещ": {
+      "min": 0,
+      "max": 110.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Внимание",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен В+УФ"
+    },
+    "бостон1": {
+      "min": 0,
+      "max": 40.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Зрительное восприятие",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен З"
+    },
+    "называниеСТпск": {
+      "min": 0,
+      "max": 12.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Зрительное восприятие",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен З"
+    },
+    "двсловНВ": {
+      "min": 0,
+      "max": 12.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "двсловОВ": {
+      "min": 0,
+      "max": 12.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "пятьслНВ": {
+      "min": 0,
+      "max": 5.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "пятьслОВ": {
+      "min": 0,
+      "max": 5.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "обпамятьМаттис": {
+      "min": 0,
+      "max": 7.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "вербпамятьВоспр": {
+      "min": 0,
+      "max": 10.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "невербпамВоспр": {
+      "min": 0,
+      "max": 10.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "асс2": {
+      "min": 0,
+      "max": 20.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Память",
+        "Речь"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па+Р"
+    },
+    "кшопс11": {
+      "min": 0,
+      "max": 1.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Праксис",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Пр"
+    },
+    "часы": {
+      "min": 0,
+      "max": 10.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Праксис",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Пр+УФ"
+    },
+    "кубик": {
+      "min": 0,
+      "max": 3.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domains": [
+        "Праксис",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Пр+УФ"
+    },
+    "забор": {
+      "min": 0,
+      "max": 3.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domains": [
+        "Праксис",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Пр+УФ"
+    },
+    "фаб3": {
+      "min": 0,
+      "max": 3.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Праксис",
+        "Управляющие функции"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Пр+УФ"
+    },
+    "кшопс7": {
+      "min": 0,
+      "max": 1.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Речь",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Р"
+    },
+    "бостон2": {
+      "min": 0,
+      "max": 40.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Речь",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Р"
+    },
+    "кшопс6": {
+      "min": 0,
+      "max": 2.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Речь",
+        "Зрительное восприятие"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Р+З"
+    },
+    "назывпредмсамост": {
+      "min": 0,
+      "max": 12.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Речь",
+        "Зрительное восприятие"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Р+З"
+    },
+    "тмт2": {
+      "min": 0,
+      "max": 180.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен УФ"
+    },
+    "асс1": {
+      "min": 0,
+      "max": 20.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Управляющие функции",
+        "Речь"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен УФ+Р"
+    },
+    "МаттисВнимОбщ": {
+      "min": 0,
+      "max": 4.0,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Внимание",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен В"
+    },
+    "шульте": {
+      "min": 0,
+      "max": 100.0,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Внимание",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен В"
+    },
+    "Бентон": {
+      "min": 0,
+      "max": 15.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Зрительное восприятие",
+        "Память"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен З+Па"
+    },
+    "ADAS10слов1": {
+      "min": 0,
+      "max": 10.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "ADAS10слов2": {
+      "min": 0,
+      "max": 10.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "ADAS10слов3": {
+      "min": 0,
+      "max": 10.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "ADAS10слУЗН": {
+      "min": 0,
+      "max": 10.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "ADAS12cлов": {
+      "min": 0,
+      "max": 12.0,
+      "higher_is_better": false,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "МаттисПамятьОб": {
+      "min": 0,
+      "max": 7.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Память",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па"
+    },
+    "МаттисПраксисОб": {
+      "min": 0,
+      "max": 5.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Праксис",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Пр"
+    },
+    "называниеФпск": {
+      "min": 0,
+      "max": 12.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Речь",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Р"
+    },
+    "МаттисИницОбщ": {
+      "min": 0,
+      "max": 4.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен УФ"
+    },
+    "МаттисКонцОбщ": {
+      "min": 0,
+      "max": 4.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Маппинг столбцов.xlsx, домен УФ"
+    },
+    "двСКП": {
+      "min": 0,
+      "max": 12,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "двсловнвобщ": {
+      "min": 0,
+      "max": 12,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "двслОВСКП": {
+      "min": 0,
+      "max": 12,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "двслововобщ": {
+      "min": 0,
+      "max": 12,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "пятьслНВСКП": {
+      "min": 0,
+      "max": 5,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "пятьслНВобщ": {
+      "min": 0,
+      "max": 5,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "пятьслОВСКП": {
+      "min": 0,
+      "max": 5,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "пятьслОВобщ": {
+      "min": 0,
+      "max": 5,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Частичный маппинг xlsx; не в среднем домена"
+    },
+    "кшопс3": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "кшопс4": {
+      "min": 0,
+      "max": 5,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Внимание",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "кшопс5": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "кшопс8": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "кшопс9": {
+      "min": 0,
+      "max": 1,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Речь",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "кшопс10": {
+      "min": 0,
+      "max": 1,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Речь",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "фаб1": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "фаб2": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "фаб4": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "фаб5": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "фаб6": {
+      "min": 0,
+      "max": 3,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "фабобщ": {
+      "min": 0,
+      "max": 18,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Управляющие функции",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "предлВоспр": {
+      "min": 0,
+      "max": 10,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "предл.собст": {
+      "min": 0,
+      "max": 10,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "цифровправ": {
+      "min": 0,
+      "max": 110,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Внимание",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "ЗрпЛурКонкрНВ": {
+      "min": 0,
+      "max": 10,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "ЗрпЛурКонкрОВ": {
+      "min": 0,
+      "max": 10,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "ЗрПЛурАбстНВ": {
+      "min": 0,
+      "max": 10,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "ЗрПЛурАбстОВ": {
+      "min": 0,
+      "max": 10,
+      "higher_is_better": true,
+      "lokshina_protocol": false,
+      "domain": "Память",
+      "lokshina_note": "Доп. батарея (не в xlsx)"
+    },
+    "Асс2": {
+      "min": 0,
+      "max": 20.0,
+      "higher_is_better": true,
+      "lokshina_protocol": true,
+      "domains": [
+        "Память",
+        "Речь"
+      ],
+      "lokshina_note": "Маппинг столбцов.xlsx, домен Па+Р (алиас Асс2)"
+    }
+  }
+}
